@@ -1,4 +1,4 @@
-import { EmergencyType } from '@/types/emergency'
+import { EmergencyDomain, EmergencyResponder } from '@/types/emergency'
 
 export const EMERGENCIES: EmergencyType[] = [
   // 🟡 INFRASTRUCTURE
@@ -111,3 +111,21 @@ export const EMERGENCIES: EmergencyType[] = [
     severity: 'HIGH',
   },
 ]
+
+// 🔹 Severity levels for emergency types
+export type EmergencySeverity =
+  | 'LOW'
+  | 'MEDIUM'
+  | 'HIGH'
+  | 'CRITICAL'
+
+// 🔹 EmergencyType (CONFIG / TAXONOMY)
+export interface EmergencyType {
+  id: string
+  domain: EmergencyDomain
+  title: string
+  description: string
+  responders: EmergencyResponder[]
+  severity: EmergencySeverity
+}
+

@@ -24,13 +24,30 @@ export type EmergencyResponder =
   | 'VOLUNTEER'
   | 'NGO'
 
-// 🔹 Lifecycle state
+// 🔹 Severity levels
+export type EmergencySeverity =
+  | 'LOW'
+  | 'MEDIUM'
+  | 'HIGH'
+  | 'CRITICAL'
+
+// 🔹 EmergencyType (CONFIG / TAXONOMY)
+export interface EmergencyType {
+  id: string
+  domain: EmergencyDomain
+  title: string
+  description: string
+  responders: EmergencyResponder[]
+  severity: EmergencySeverity
+}
+
+// 🔹 Emergency lifecycle
 export type EmergencyStatus =
   | 'OPEN'
   | 'ASSIGNED'
   | 'RESOLVED'
 
-// 🔹 Core emergency model
+// 🔹 Runtime emergency request
 export interface EmergencyRequest {
   id: string
   emergencyTypeId: string
@@ -38,13 +55,9 @@ export interface EmergencyRequest {
   title: string
   lat: number
   lng: number
-
   status: EmergencyStatus
-
   createdAt: string
   updatedAt?: string
-
-  // assigned responder (once accepted)
   assignedTo?: {
     role: EmergencyResponder
     responderId: string
