@@ -9,8 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@prisma/client": "^7.2.0",
     "@supabase/supabase-js": "^2.88.0",
     "next": "16.0.10",
+    "prisma": "^7.2.0",
     "react": "19.2.1",
     "react-dom": "19.2.1"
   },

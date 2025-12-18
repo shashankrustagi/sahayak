@@ -1,0 +1,21 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Emergency {
+  id              String   @id
+  emergencyTypeId String
+  domain          String
+  title           String
+  lat             Float
+  lng             Float
+  status          String
+  createdAt       DateTime
+  updatedAt       DateTime?
+  assignedRole    String?
+  responderId     String?
+}
