@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/realtime/client'
+import DashboardLayout from '@/components/DashboardLayout'
 
 export default function DoctorDashboard() {
   const [available, setAvailable] = useState(false)
@@ -13,7 +14,10 @@ export default function DoctorDashboard() {
     await fetch('/api/availability', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ role: 'DOCTOR', available: val }),
+      body: JSON.stringify({
+        role: 'DOCTOR',
+        available: val,
+      }),
     })
   }
 
@@ -31,12 +35,11 @@ export default function DoctorDashboard() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         emergencyId,
-        responderRole: 'DOCTOR'
-        ,
-}),
+        responderRole: 'DOCTOR',
+      }),
     })
 
-    // remove accepted emergency from list
+    // optimistic removal
     setEmergencies((prev) =>
       prev.filter((e) => e.id !== emergencyId)
     )
@@ -44,80 +47,94 @@ export default function DoctorDashboard() {
     setLoadingId(null)
   }
 
-useEffect(() => {
-  loadEmergencies()
+  useEffect(() => {
+    loadEmergencies()
 
-  const channel = supabase
-    .channel('emergencies')
+    const channel = supabase
+      .channel('emergencies')
 
-    // when a new emergency is created
-    .on(
-      'broadcast',
-      { event: 'EMERGENCY_CREATED' },
-      ({ payload }) => {
-        setEmergencies((prev) => [payload, ...prev])
-      }
-    )
+      .on(
+        'broadcast',
+        { event: 'EMERGENCY_CREATED' },
+        ({ payload }) => {
+          setEmergencies((prev) => [payload, ...prev])
+        }
+      )
 
-    // when someone else accepts it
-    .on(
-      'broadcast',
-      { event: 'EMERGENCY_ASSIGNED' },
-      ({ payload }) => {
-        setEmergencies((prev) =>
-          prev.filter((e) => e.id !== payload.id)
-        )
-      }
-    )
+      .on(
+        'broadcast',
+        { event: 'EMERGENCY_ASSIGNED' },
+        ({ payload }) => {
+          setEmergencies((prev) =>
+            prev.filter((e) => e.id !== payload.id)
+          )
+        }
+      )
 
-    .subscribe()
+      .subscribe()
 
-  return () => {
-    supabase.removeChannel(channel)
-  }
-}, [])
-
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [])
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold">Doctor Dashboard</h1>
-
-      <div className="mt-4">
+    <DashboardLayout
+      title="Emergency Response Dashboard"
+      role="Doctor"
+    >
+      {/* Availability */}
+      <div className="mb-6">
         <button
           onClick={() => toggleAvailability(!available)}
-          className={`px-4 py-2 rounded ${
-            available ? 'bg-green-600' : 'bg-gray-400'
-          } text-white`}
+          className={`px-4 py-2 rounded text-sm font-medium ${
+            available
+              ? 'bg-green-600 text-white'
+              : 'bg-gray-200 text-gray-900'
+          }`}
         >
-          {available ? 'Available' : 'Unavailable'}
+          {available ? 'Available for Response' : 'Unavailable'}
         </button>
       </div>
 
-      <h2 className="mt-6 font-semibold">Open Emergencies</h2>
+      {/* Emergencies */}
+      <h2 className="text-lg font-semibold mb-4">
+        Open Emergencies
+      </h2>
 
-      <ul className="mt-2 space-y-3">
-        {emergencies.map((e) => (
-          <li
-            key={e.id}
-            className="border p-4 rounded flex justify-between items-center"
-          >
-            <div>
-              🚨 <b>{e.title}</b>
-              <div className="text-sm text-gray-600">
-                Domain: {e.domain}
-              </div>
-            </div>
-
-            <button
-              disabled={loadingId === e.id}
-              onClick={() => acceptEmergency(e.id)}
-              className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+      {emergencies.length === 0 ? (
+        <p className="text-sm text-gray-600">
+          No open emergencies at the moment.
+        </p>
+      ) : (
+        <ul className="space-y-3">
+          {emergencies.map((e) => (
+            <li
+              key={e.id}
+              className="border border-gray-200 rounded px-4 py-3 flex justify-between items-center"
             >
-              {loadingId === e.id ? 'Accepting...' : 'Accept'}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
+              <div>
+                <p className="font-medium text-gray-900">
+                  🚨 {e.title}
+                </p>
+                <p className="text-sm text-gray-600">
+                  Domain: {e.domain}
+                </p>
+              </div>
+
+              <button
+                disabled={loadingId === e.id}
+                onClick={() => acceptEmergency(e.id)}
+                className="bg-red-600 text-white px-4 py-2 rounded text-sm font-medium disabled:opacity-50"
+              >
+                {loadingId === e.id
+                  ? 'Accepting…'
+                  : 'Accept'}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </DashboardLayout>
   )
 }

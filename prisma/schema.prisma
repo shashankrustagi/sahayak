@@ -11,11 +11,26 @@ model Emergency {
   emergencyTypeId String
   domain          String
   title           String
+
+  // 📍 LOCATION
   lat             Float
   lng             Float
+  locationAccuracy Int
+  locationSource   String
+
+  // 📞 CONTACT
+  phoneNumber     String
+
+  // 🔄 STATE
   status          String
-  createdAt       DateTime
-  updatedAt       DateTime?
+
+  // 👤 ASSIGNMENT
   assignedRole    String?
   responderId     String?
+
+  // 🕒 AUDIT
+  createdAt       DateTime
+  updatedAt       DateTime?
 }
+
+

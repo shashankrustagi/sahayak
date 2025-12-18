@@ -1,10 +1,19 @@
 import { NextResponse } from 'next/server'
-import { mockEmergencies } from '@/lib/mock-data'
+import { emergencyRepo } from '@/lib/repositories'
 
 export async function GET() {
-  const openEmergencies = mockEmergencies.filter(
-    (e) => e.status === 'OPEN'
-  )
+  const emergencies = await emergencyRepo.listOpen()
 
-  return NextResponse.json(openEmergencies)
+  return NextResponse.json(
+    emergencies.map((e) => ({
+      id: e.id,
+      emergencyTypeId: e.emergencyTypeId,
+      domain: e.domain,
+      title: e.title,
+      lat: e.lat,
+      lng: e.lng,
+      status: e.status,
+      createdAt: e.createdAt,
+    }))
+  )
 }

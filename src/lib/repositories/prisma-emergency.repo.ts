@@ -15,13 +15,22 @@ export const prismaEmergencyRepo: EmergencyRepository = {
         emergencyTypeId: emergency.emergencyTypeId,
         domain: emergency.domain,
         title: emergency.title,
+
+        // 📍 LOCATION
         lat: emergency.lat,
         lng: emergency.lng,
+        locationAccuracy: emergency.locationAccuracy,
+        locationSource: emergency.locationSource,
+
+        // 📞 CONTACT
+        phoneNumber: emergency.phoneNumber,
+
         status: emergency.status,
         createdAt: new Date(emergency.createdAt),
         updatedAt: emergency.updatedAt
           ? new Date(emergency.updatedAt)
           : null,
+
         assignedRole: emergency.assignedTo?.role,
         responderId: emergency.assignedTo?.responderId,
       },
@@ -30,7 +39,7 @@ export const prismaEmergencyRepo: EmergencyRepository = {
     return emergency
   },
 
-  async listOpen() {
+  async listOpen(): Promise<EmergencyRequest[]> {
     const rows = await prisma.emergency.findMany({
       where: { status: 'OPEN' },
       orderBy: { createdAt: 'desc' },
@@ -41,11 +50,20 @@ export const prismaEmergencyRepo: EmergencyRepository = {
       emergencyTypeId: e.emergencyTypeId,
       domain: e.domain as EmergencyDomain,
       title: e.title,
+
+      // 📍 LOCATION
       lat: e.lat,
       lng: e.lng,
+      locationAccuracy: e.locationAccuracy,
+      locationSource: e.locationSource as any,
+
+      // 📞 CONTACT (internal only)
+      phoneNumber: e.phoneNumber,
+
       status: e.status as EmergencyStatus,
       createdAt: e.createdAt.toISOString(),
       updatedAt: e.updatedAt?.toISOString(),
+
       assignedTo: e.assignedRole
         ? {
             role: e.assignedRole as EmergencyResponder,
@@ -55,7 +73,7 @@ export const prismaEmergencyRepo: EmergencyRepository = {
     }))
   },
 
-  async findById(id) {
+  async findById(id): Promise<EmergencyRequest | null> {
     const e = await prisma.emergency.findUnique({
       where: { id },
     })
@@ -66,11 +84,20 @@ export const prismaEmergencyRepo: EmergencyRepository = {
       emergencyTypeId: e.emergencyTypeId,
       domain: e.domain as EmergencyDomain,
       title: e.title,
+
+      // 📍 LOCATION
       lat: e.lat,
       lng: e.lng,
+      locationAccuracy: e.locationAccuracy,
+      locationSource: e.locationSource as any,
+
+      // 📞 CONTACT
+      phoneNumber: e.phoneNumber,
+
       status: e.status as EmergencyStatus,
       createdAt: e.createdAt.toISOString(),
       updatedAt: e.updatedAt?.toISOString(),
+
       assignedTo: e.assignedRole
         ? {
             role: e.assignedRole as EmergencyResponder,
@@ -80,7 +107,7 @@ export const prismaEmergencyRepo: EmergencyRepository = {
     }
   },
 
-  async assign(id, assignedTo) {
+  async assign(id, assignedTo): Promise<EmergencyRequest | null> {
     return prisma.$transaction(async (tx) => {
       const existing = await tx.emergency.findUnique({
         where: { id },
@@ -105,17 +132,24 @@ export const prismaEmergencyRepo: EmergencyRepository = {
         emergencyTypeId: updated.emergencyTypeId,
         domain: updated.domain as EmergencyDomain,
         title: updated.title,
+
+        // 📍 LOCATION
         lat: updated.lat,
         lng: updated.lng,
+        locationAccuracy: updated.locationAccuracy,
+        locationSource: updated.locationSource as any,
+
+        // 📞 CONTACT
+        phoneNumber: updated.phoneNumber,
+
         status: updated.status as EmergencyStatus,
         createdAt: updated.createdAt.toISOString(),
         updatedAt: updated.updatedAt?.toISOString(),
-        assignedTo: updated.assignedRole
-          ? {
-              role: updated.assignedRole as EmergencyResponder,
-              responderId: updated.responderId!,
-            }
-          : undefined,
+
+        assignedTo: {
+          role: updated.assignedRole as EmergencyResponder,
+          responderId: updated.responderId!,
+        },
       }
     })
   },

@@ -53,13 +53,23 @@ export interface EmergencyRequest {
   emergencyTypeId: string
   domain: EmergencyDomain
   title: string
+
+  // 📍 LOCATION
   lat: number
   lng: number
+  locationAccuracy: number
+  locationSource: 'GPS' | 'MANUAL' | 'MAP'
+
+  // 📞 CONTACT
+  phoneNumber: string
+
   status: EmergencyStatus
   createdAt: string
   updatedAt?: string
+
   assignedTo?: {
-    role: EmergencyResponder
+    role: string
     responderId: string
   }
 }
+

@@ -9,9 +9,11 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
     "@supabase/supabase-js": "^2.88.0",
     "next": "16.0.10",
+    "pg": "^8.16.3",
     "prisma": "^7.2.0",
     "react": "19.2.1",
     "react-dom": "19.2.1"
@@ -19,6 +21,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/pg": "^8.16.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
